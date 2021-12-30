@@ -15,7 +15,7 @@ public class test3 {
 
 
     @Test
-    public static void TestClone() {
+    public void TestClone() {
         String localPath = "D:/git";
         String url = "https://github.com/fantastzjy/jgit";
 
@@ -37,7 +37,6 @@ public class test3 {
             return "error";
         }
     }
-
 
 
 }

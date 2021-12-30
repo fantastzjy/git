@@ -1,3 +1,4 @@
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -32,6 +33,7 @@ public class GitTest {
         String remoteRepositoryUrl = "https://github.com/fantastzjy/jgit";
         String cloneToLocalDir = "jgit";
         String localRepositoryPath = "D:/MyConfiguration/jiaying2.zhang/Desktop/git";
+        String buildPathName = "D:/MyConfiguration/jiaying2.zhang/Desktop/ggg";
 
         String username = "fantastzjy";
         String password = "Fantastu7.";
@@ -39,45 +41,46 @@ public class GitTest {
         // 凭证管理
         CredentialsProvider provider = createCredential(username, password);
 
+        //1、仓库相关
+
         // clone远程仓库
 //        Git git = CloneRepositoryFromRemote(remoteRepositoryUrl, cloneToLocalDir, provider);
 
+//        构建本地仓库
+//        Repository repository = repositoryBuild(buildPathName);
+
         //获取本地仓库
-        Repository repositoryFromDir = getRepositoryFromDir(localRepositoryPath);
-        repositoryFromDir.getDirectory();
-        String branch = repositoryFromDir.getBranch();
+//        Repository repositoryFromDir = getRepositoryFromDir(localRepositoryPath);
+        Git git = Git.open(new File(localRepositoryPath));
 
-
-        //commit
-        // Git git, String message, CredentialsProvider provider
-//        commit(git, "测试提交", provider);
+        //2、commit
+        commit(git, "测试提交", provider);
+//        3、push
 //        push(git, provider);
 
         System.out.println("结束");
     }
 
-
-    //    To build a repository
-//    @Test
-//    public static Repository repositoryBuild(String pathName) {
-//        try {
-//            FileRepositoryBuilder builder = new FileRepositoryBuilder();
-//            Repository repository = builder.setGitDir(new File(pathName))
-//                    .readEnvironment() // scan environment GIT_* variables
-//                    .findGitDir() // scan up the file system tree
-//                    .build();
-//            return repository;
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-
-
-    //凭证
-    // 通过CredentialsProvider管理凭证，常用的是UsernamePasswordCredentialsProvider
+    //Http凭证
+    //通过CredentialsProvider管理凭证，常用的是UsernamePasswordCredentialsProvider
     public static CredentialsProvider createCredential(String userName, String password) {
         return new UsernamePasswordCredentialsProvider(userName, password);
+    }
+
+    //仓库相关
+    //构建仓库
+    public static Repository repositoryBuild(String buildPathName) {
+        try {
+            FileRepositoryBuilder builder = new FileRepositoryBuilder();
+            Repository repository = builder.setGitDir(new File(buildPathName))
+                    .readEnvironment() // scan environment GIT_* variables
+                    .findGitDir() // scan up the file system tree
+                    .build();
+            return repository;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     //clone远程仓库
@@ -111,8 +114,7 @@ public class GitTest {
     }
 
     //    push
-    //    git 命令： git push origin branchName
-    //    push直接调用push即可,需要指定credentialsProvider
+    //    git 命令： git push origin branchName    push直接调用push即可,需要指定credentialsProvider
     public static void push(Git git, CredentialsProvider provider) throws GitAPIException, IOException {
         push(git, null, provider);
     }
