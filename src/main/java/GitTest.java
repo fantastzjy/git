@@ -50,12 +50,16 @@ public class GitTest {
 //        Repository repository = repositoryBuild(buildPathName);
 
         //获取本地仓库
-//        Repository repositoryFromDir = getRepositoryFromDir(localRepositoryPath);
-        Git git = Git.open(new File(localRepositoryPath));
+        //方式一
+        Repository repositoryFromDir = getRepositoryFromDir(localRepositoryPath);
+        Git git = new Git(repositoryFromDir);
+        //方式二
+//        Git git = Git.open(new File(localRepositoryPath));   //√
 
-        //2、commit
+        //2、commit   √
         commit(git, "测试提交", provider);
-//        3、push
+
+        //3、push
 //        push(git, provider);
 
         System.out.println("结束");
@@ -86,6 +90,8 @@ public class GitTest {
     //clone远程仓库
     //通过Git.cloneRepository -> clone远程仓库，如果需要凭证，则需要指定credentialsProvider
     public static Git CloneRepositoryFromRemote(String repoUrl, String cloneDir, CredentialsProvider provider) throws GitAPIException {
+        //CloneCommand cloneCommand = Git.cloneRepository();
+        //对cloneCommand再次进行了封装
         Git git = Git.cloneRepository()
                 .setCredentialsProvider(provider)
                 .setURI(repoUrl)
