@@ -60,11 +60,11 @@ public class SSHGit {
 //        status(localRepoPath);//打印提交后状态
 
         //push
-        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
+//        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
 //        System.out.println("push 结束");
 
         //pull
-//        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
+        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
 
 
         //切换分支
