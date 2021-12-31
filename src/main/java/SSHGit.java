@@ -221,7 +221,6 @@ public class SSHGit {
                             sshTransport.setSshSessionFactory(sshSessionFactory);
                         })
                 .call();
-
     }
 
 
