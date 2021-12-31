@@ -229,28 +229,6 @@ public class GitTest {
 
 
 
-    /**
-     * 查看状态
-     */
-    @Test
-    public static void status() {
-        File RepoGitDir = new File(localRepositoryPath);
-        Repository repo = null;
-        try {
-            repo = new FileRepository(RepoGitDir.getAbsolutePath());
-            Git git = new Git(repo);
-            Status status = git.status().call();
-            log.info("Git Change: " + status.getChanged());
-            log.info("Git Modified: " + status.getModified());
-            log.info("Git UncommittedChanges: " + status.getUncommittedChanges());
-            log.info("Git Untracked: " + status.getUntracked());
-        } catch (Exception e) {
-            log.info(e.getMessage());
-        } finally {
-            if (repo != null) {
-                repo.close();
-            }
-        }
-    }
+
 
 }

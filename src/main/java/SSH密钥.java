@@ -3,9 +3,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullCommand;
+import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.NotSupportedException;
 import org.eclipse.jgit.errors.TransportException;
@@ -20,6 +22,7 @@ import org.eclipse.jgit.util.FS;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import org.junit.Test;
 
 /**
  * @Package: PACKAGE_NAME
@@ -28,6 +31,7 @@ import com.jcraft.jsch.Session;
  * @CreateTime: 2021-12-31 10:08
  * @Description:
  */
+@Slf4j
 public class SSH密钥 {
 
     //私钥文件地址
@@ -70,9 +74,10 @@ public class SSH密钥 {
 //        List<String> gitVersions = getGitVersions(localRepoPath);
 
         //读取仓库日志
+//        List<String> logs = getLogs(Git.open(new File(localRepoPath)).getRepository());
 
-        List<String> logs = getLogs(Git.open(new File(localRepoPath)).getRepository());
-
+        //读取仓库状态
+        status(localRepoPath);
 
         System.out.println("测试结束");
     }
@@ -339,10 +344,31 @@ public class SSH密钥 {
 //        }
 //    }
 
+    //************************************** 查看状态 *******************************
+
+    /**
+     * 查看状态
+     */
+    public static void status(String localRepoPath) throws IOException {
+        Git git = Git.open(new File(localRepoPath));
+
+        try {
+            Status status = git.status().call();
+            log.info("Git Change: " + status.getChanged());
+            log.info("Git Modified: " + status.getModified());
+            log.info("Git UncommittedChanges: " + status.getUncommittedChanges());
+            log.info("Git Untracked: " + status.getUntracked());
+        } catch (Exception e) {
+            log.info(e.getMessage());
+        } finally {
+            if (git != null) {
+                git.close();
+            }
+        }
+    }
 
 
-
-     //*************************************** 读取仓库日志 ****************************
+    //*************************************** 读取仓库日志 ****************************
     //    读取仓库日志
     //    可以通过RevWalk读取仓库日志。
     //    revWalk.parseCommit 可读取一条commit
@@ -377,7 +403,6 @@ public class SSH密钥 {
 
         return commits;
     }
-
 
 
 }
