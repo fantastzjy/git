@@ -57,7 +57,7 @@ public class SSH密钥 {
 
 
         //push
-        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
+//        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
 
         //pull
 //        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
