@@ -60,7 +60,7 @@ public class GitTest {
 
 
         //************* commit
-        commit(git, "测试提交", provider);
+//        commit(git, "测试提交", provider);
 
         //************* push
 //        push(git, provider);

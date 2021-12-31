@@ -1,6 +1,5 @@
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,14 +7,9 @@ import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.*;
-import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.util.FS;
 
 import com.jcraft.jsch.JSch;
@@ -48,6 +42,7 @@ public class SSH密钥 {
     //测试仓库本地路径
     public static String localRepoPathTest = "D:/MyConfiguration/jiaying2.zhang/Desktop/jgit";
 
+    //************************* Main ****************************
 
     public static void main(String[] args) throws GitAPIException, IOException {
         //ssh session的工厂,用来创建密匙连接
@@ -56,12 +51,19 @@ public class SSH密钥 {
 //        gitClone(remoteRepoPathTest, localRepoPathTest, sshSessionFactory);
 
         //commit
-        commit(localRepoPath,null,"测试提交 1");
+        commit(localRepoPath, null, "测试提交 1");
 
-        //pull
-//        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
+
+        //push
 //        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
 
+        //pull
+        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
+
+        //获取提交信息      仓库内(path下,有可能为仓库下子文件夹)的所有提交版本号
+//        List<String> gitVersions = getGitVersions(localRepoPath);
+
+        System.out.println("测试结束");
     }
 
     /**
@@ -245,8 +247,12 @@ public class SSH密钥 {
             //设置密钥,拉取文件
             PullCommand pullCommand = pullGit
                     .pull()
-                    .setRemote("origin")      //zjy
-                    .setRemoteBranchName("gh-pages")   //zjy
+                    //用于拉取操作的远程（uri 或名称）。 如果没有设置远程，将使用分支的配置
+                    // 如果分支配置缺少Constants.DEFAULT_REMOTE_NAME的默认值将被使用。
+//                    .setRemote("origin")
+                    //用于拉取操作的远程分支名称。 如果没有设置 remoteBranchName，将使用分支的配置。
+                    // 如果分支配置丢失，则使用与当前分支同名的远程分支。
+//                    .setRemoteBranchName("master")
                     .setTransportConfigCallback(
                             transport -> {
                                 SshTransport sshTransport = (SshTransport) transport;
@@ -271,8 +277,8 @@ public class SSH密钥 {
         List<String> versions = new ArrayList<>();
         try {
             Git git = Git.open(new File(path));
-            Repository repository = git.getRepository();
-            Git git1 = new Git(repository);
+//            Repository repository = git.getRepository();
+//            Git git1 = new Git(repository);
             Iterable<RevCommit> commits = git.log().all().call();
             int count = 0;
             for (RevCommit commit : commits) {
