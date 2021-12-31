@@ -242,7 +242,7 @@ public class SSHGit {
         try {
             //关联到本地仓库
             //1  报错 org.eclipse.jgit.api.errors.WrongRepositoryStateException: Cannot pull into a repository with state: BARE
-            Git pullGit = new Git(new FileRepository(new File(localRepoPath)));
+            Git pullGit = new Git(new FileRepository(localRepoPath));
 
             //2  报错org.eclipse.jgit.transport.TransportHttp cannot be cast to org.eclipse.jgit.transport.SshTransport
 //            Git pullGit = Git.open(new File(localRepoPath));
