@@ -49,10 +49,10 @@ public class GitTest {
 //        Git git = CloneRepositoryFromRemote(remoteRepositoryUrl, cloneToLocalDir, provider);
 
         //2、获取本地仓库
-        //方式一
+        //*****方式一
 //        Repository repositoryFromDir = getRepositoryFromDir(localRepositoryPath);
 //        Git git = new Git(repositoryFromDir);
-        //方式二
+        //*****方式二~~~~~~
         Git git = Git.open(new File(localRepositoryPath));
 
         //3、构建本地仓库

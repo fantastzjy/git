@@ -1,21 +1,20 @@
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullCommand;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-import org.eclipse.jgit.transport.JschConfigSessionFactory;
-import org.eclipse.jgit.transport.OpenSshConfig;
-import org.eclipse.jgit.transport.SshSessionFactory;
-import org.eclipse.jgit.transport.SshTransport;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.transport.*;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.util.FS;
 
@@ -36,21 +35,32 @@ public class SSH密钥 {
     public static String keyPath = "D:/MyConfiguration/jiaying2.zhang/.ssh/id_rsa";
 
     //本项目的远程仓库
-    public static String localRepositoryPath = "D:/MyConfiguration/jiaying2.zhang/Desktop/git";
+    public static String remoteRepoPath = "ssh://git@github.com/fantastzjy/git.git";
+
+    //本项目的本地仓库
+    public static String localRepoPath = "D:/MyConfiguration/jiaying2.zhang/Desktop/git";
 
     //测试仓库远程路径
 //    public static String remoteRepositoryUrl = "https://github.com/fantastzjy/jgit";
 //    String remoteRepoPath = "ssh://github.com/fantastzjy/jgit.git";   //错误地址 未加协议
-    public static String remoteRepoPath = "ssh://git@github.com/fantastzjy/jgit.git"; //git地址
+    public static String remoteRepoPathTest = "ssh://git@github.com/fantastzjy/jgit.git"; //git地址
 
     //测试仓库本地路径
-    public static String cloneToLocalDir = "D:/MyConfiguration/jiaying2.zhang/Desktop/test1";
+    public static String localRepoPathTest = "D:/MyConfiguration/jiaying2.zhang/Desktop/jgit";
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws GitAPIException, IOException {
+        //ssh session的工厂,用来创建密匙连接
+        SshSessionFactory sshSessionFactory = getsshSessionFactory(keyPath);
         //克隆
-        gitClone(remoteRepoPath, cloneToLocalDir, keyPath);
+//        gitClone(remoteRepoPathTest, localRepoPathTest, sshSessionFactory);
 
+        //commit
+        commit(localRepoPath,null,"测试提交 1");
+
+        //pull
+//        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
+//        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
 
     }
 
@@ -104,11 +114,10 @@ public class SSH密钥 {
      *
      * @param remoteRepoPath
      * @param localRepoPath
-     * @param keyPath
+     * @param sshSessionFactory
      */
-    protected static void gitClone(String remoteRepoPath, String localRepoPath, String keyPath) {
-        SshSessionFactory sshSessionFactory = getsshSessionFactory(keyPath);
-
+    protected static void gitClone(String remoteRepoPath, String localRepoPath, SshSessionFactory sshSessionFactory) {
+        System.out.println("===" + remoteRepoPath + "===" + localRepoPath + "===" + keyPath);
         //克隆代码库命令
         CloneCommand cloneCommand = Git.cloneRepository();
         Git git = null;
@@ -120,9 +129,9 @@ public class SSH密钥 {
                     })
                     .setDirectory(new File(localRepoPath)) //设置下载存放路径
                     .call();
-            System.out.println("Clone successfully!!!!!!!!!!!!!!!!!!!!!!");
+            System.out.println("Clone successfully !!!!!!!!!!!!!!!!!!!!!!");
         } catch (Exception e) {
-            System.out.println("fail");
+            System.err.println("Clone fail !!!!!!!!!!!!!!");
             e.printStackTrace();
         } finally {
             if (git != null) {
@@ -130,26 +139,105 @@ public class SSH密钥 {
             }
         }
     }
+    //************************* commit ************************
+
+    /**
+     * commit
+     * git 命令： git commit -a -m '{msg}'
+     * commit前先add
+     *
+     * @param localRepoPath
+     * @param message
+     * @throws GitAPIException
+     */
+    public static void commit(String localRepoPath, String branch, String message) throws GitAPIException, IOException {
+
+        // 添加文件
+        Git pushGit = Git.open(new File(localRepoPath));
+
+        if (branch == null) {
+            branch = pushGit.getRepository().getBranch();
+        }
+
+        pushGit.add().addFilepattern(".").call();
+        //提交
+        pushGit.commit()
+                .setMessage(message)
+                .call();
+
+        System.out.println("提交成功！");
+    }
+
+    //**************************** push ***********************************
+
+    /**
+     * http push
+     * 自动获取分支名称
+     *
+     * @param git
+     * @param branch
+     * @param provider
+     * @throws GitAPIException
+     * @throws IOException
+     */
+    public static void push(Git git, String branch, CredentialsProvider provider) throws GitAPIException, IOException {
+        if (branch == null) {
+            branch = git.getRepository().getBranch();
+        }
+        git.push()
+                .setCredentialsProvider(provider)
+                .setRemote("origin").setRefSpecs(new RefSpec(branch)).call();
+    }
+
+    /**
+     * ssh push
+     *
+     * @param remoteRepoPath
+     * @param localRepoPath
+     * @param branch
+     * @param sshSessionFactory
+     * @throws IOException
+     * @throws GitAPIException
+     */
+    public static void push(String remoteRepoPath, String localRepoPath, String branch, SshSessionFactory sshSessionFactory) throws IOException, GitAPIException {
+        //关联到本地仓库
+//        FileRepository fileRepository = new FileRepository(new File(localRepoPath));
+//        Git pushGit = new Git(fileRepository);
+//        FileRepository fileRepository = new FileRepository(new File(localRepoPath));
+
+        Git pushGit = Git.open(new File(localRepoPath));
+
+        if (branch == null) {
+            branch = pushGit.getRepository().getBranch();
+        }
+
+        pushGit.push()
+//                .setRemote("origin")
+                .setRefSpecs(new RefSpec(branch))
+//                .setCredentialsProvider(provider)
+                .setTransportConfigCallback(
+                        transport -> {
+                            SshTransport sshTransport = (SshTransport) transport;
+                            sshTransport.setSshSessionFactory(sshSessionFactory);
+                        })
+                .call();
+
+    }
 
 
-    //localRepoPath 为 .git 的 path 如 : D:\\gitRepository\\.git
-    //keyPath 私钥文件 path
-    public static void pullCode(String remoteRepoPath, String localRepoPath, String keyPath) {
+    //**************************** pull ***********************************
+
+    /**
+     * pull 项目
+     * localRepoPath 为 .git 的 path 如 : D:\\gitRepository\\.git
+     *
+     * @param remoteRepoPath
+     * @param localRepoPath
+     * @param sshSessionFactory
+     */
+    public static void pull(String remoteRepoPath, String localRepoPath, SshSessionFactory sshSessionFactory) {
         System.out.println("===" + remoteRepoPath + "===" + localRepoPath + "===" + keyPath);
-        //ssh session的工厂,用来创建密匙连接
-        SshSessionFactory sshSessionFactory = new JschConfigSessionFactory() {
-            @Override
-            protected void configure(OpenSshConfig.Host host, Session session) {
-                session.setConfig("StrictHostKeyChecking", "no");
-            }
 
-            @Override
-            protected JSch createDefaultJSch(FS fs) throws JSchException {
-                JSch sch = super.createDefaultJSch(fs);
-                sch.addIdentity(keyPath);
-                return sch;
-            }
-        };
         try {
             //关联到本地仓库
             FileRepository fileRepository = new FileRepository(new File(localRepoPath));
@@ -157,16 +245,21 @@ public class SSH密钥 {
             //设置密钥,拉取文件
             PullCommand pullCommand = pullGit
                     .pull()
+                    .setRemote("origin")      //zjy
+                    .setRemoteBranchName("gh-pages")   //zjy
                     .setTransportConfigCallback(
                             transport -> {
                                 SshTransport sshTransport = (SshTransport) transport;
                                 sshTransport.setSshSessionFactory(sshSessionFactory);
                             });
+
             pullCommand.call();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     //*******************JGit 获取提交信息/详细提交日志*************************
 
