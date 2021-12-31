@@ -7,8 +7,6 @@ import java.util.Random;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.errors.NotSupportedException;
-import org.eclipse.jgit.errors.TransportException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -30,7 +28,7 @@ import org.junit.Test;
  * @Description:
  */
 @Slf4j
-public class SSH密钥 {
+public class SSHGit {
 
     //私钥文件地址
     public static String keyPath = "D:/MyConfiguration/jiaying2.zhang/.ssh/id_rsa";
@@ -68,6 +66,9 @@ public class SSH密钥 {
         //pull
 //        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
 
+
+        //切换分支
+        checkout(localRepoPath);
 
         //获取提交信息      仓库内(path下,有可能为仓库下子文件夹)的所有提交版本号
 //        List<String> gitVersions = getGitVersions(localRepoPath);
@@ -288,67 +289,42 @@ public class SSH密钥 {
         }
     }
 
+    public static void checkout(String localRepoPath) throws IOException, GitAPIException {
+        //若能获取本地仓库则进入
+        try (Git git = new Git(new FileRepository(localRepoPath))) {
 
-    //*******************JGit 获取提交信息/详细提交日志*************************
+            //获取分支列表
+            List<Ref> call = git.branchList()
+                    .setListMode(ListBranchCommand.ListMode.REMOTE)
+                    .call();
 
-    /**
-     * 1.获取提交信息
-     * 此方法获取了仓库内(path下,有可能为仓库下子文件夹)的所有提交版本号
-     */
-    public static List<String> getGitVersions(String path) {
-        List<String> versions = new ArrayList<>();
-        try {
-            Git git = Git.open(new File(path));
-//            Repository repository = git.getRepository();
-//            Git git1 = new Git(repository);
-            Iterable<RevCommit> commits = git.log().all().call();
-            int count = 0;
-            for (RevCommit commit : commits) {
-                System.out.println("LogCommit: " + commit);
-                System.out.println("===" + commit.getFullMessage());
-                String version = commit.getName(); //版本号,用来查询详细信息
-                versions.add(version);
-                System.out.println("===" + commit.getName());
-                System.out.println("===" + commit.getAuthorIdent());
-                count++;
+            //在分支列表中获取主分支
+            Ref remoteMaster = null;
+            for (Ref ref : call) {
+                if (ref.getName().contains("master")) {
+                    remoteMaster = ref;
+                    System.out.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
+                }
             }
-            return versions;
-        } catch (Exception e) {
-            e.printStackTrace();
+
+            git.checkout()
+                    .setCreateBranch(false)
+                    //.setStartPoint(buildRevCommit(git.getRepository(), remoteMaster.getObjectId()))
+                    //.setStartPoint("origin/master")
+                    //.setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                    //将主分支切换到分支 test1
+                    .setName("test1")
+                    .call();
+
+            for (Ref ref : git.branchList()
+                    .setListMode(ListBranchCommand.ListMode.ALL)
+                    .call()) {
+                System.out.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
+            }
+
         }
-        return null;
     }
 
-    /**
-     * 2、获取两个版本间提交详细记录
-     * version 为 上一个方法查询出来的版本号
-     * @param
-     */
-//    public static void showDiff(String path,String oldVersion,String newVersion) {
-//        try {
-//            Git git = Git.open(new File(path));
-//            Repository repository = git.getRepository();
-//            //旧版本
-//            AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, oldVersion);
-//            //新版本
-//            AbstractTreeIterator newTreeParser = prepareTreeParser(repository, newVersion);
-//
-//            List<DiffEntry> diff = git.diff().
-//                    setOldTree(oldTreeParser).
-//                    setNewTree(newTreeParser).
-//                    call();
-//            for (DiffEntry entry : diff) {
-//                System.out.println("Entry: " + entry + ", from: " + entry.getOldId() + ", to: " + entry.getNewId());
-//                //此处可传一个输出流获取提交详情
-//                DiffFormatter formatter = new DiffFormatter(System.out);
-//                formatter.setRepository(repository);
-//                formatter.format(entry);
-//            }
-//
-//        }catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     //************************************** 查看状态 *******************************
 
@@ -418,16 +394,80 @@ public class SSH密钥 {
         return commits;
     }
 
+
+    //*******************JGit 获取提交信息/详细提交日志*************************
+
+    /**
+     * 1.获取提交信息
+     * 此方法获取了仓库内(path下,有可能为仓库下子文件夹)的所有提交版本号
+     */
+    public static List<String> getGitVersions(String path) {
+        List<String> versions = new ArrayList<>();
+        try {
+            Git git = Git.open(new File(path));
+//            Repository repository = git.getRepository();
+//            Git git1 = new Git(repository);
+            Iterable<RevCommit> commits = git.log().all().call();
+            int count = 0;
+            for (RevCommit commit : commits) {
+                System.out.println("LogCommit: " + commit);
+                System.out.println("===" + commit.getFullMessage());
+                String version = commit.getName(); //版本号,用来查询详细信息
+                versions.add(version);
+                System.out.println("===" + commit.getName());
+                System.out.println("===" + commit.getAuthorIdent());
+                count++;
+            }
+            return versions;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 2、获取两个版本间提交详细记录
+     * version 为 上一个方法查询出来的版本号
+     * @param
+     */
+//    public static void showDiff(String path,String oldVersion,String newVersion) {
+//        try {
+//            Git git = Git.open(new File(path));
+//            Repository repository = git.getRepository();
+//            //旧版本
+//            AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, oldVersion);
+//            //新版本
+//            AbstractTreeIterator newTreeParser = prepareTreeParser(repository, newVersion);
+//
+//            List<DiffEntry> diff = git.diff().
+//                    setOldTree(oldTreeParser).
+//                    setNewTree(newTreeParser).
+//                    call();
+//            for (DiffEntry entry : diff) {
+//                System.out.println("Entry: " + entry + ", from: " + entry.getOldId() + ", to: " + entry.getNewId());
+//                //此处可传一个输出流获取提交详情
+//                DiffFormatter formatter = new DiffFormatter(System.out);
+//                formatter.setRepository(repository);
+//                formatter.format(entry);
+//            }
+//
+//        }catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+
     /**
      * 获取分支列表
+     *
      * @param
      * @throws IOException
      * @throws GitAPIException
      */
     @Test
-    public  void getBranchList() throws IOException, GitAPIException {
+    public void getBranchList() throws IOException, GitAPIException {
 
-        FileRepository fileRepository = new FileRepository(new File(SSH密钥.localRepoPath));
+        FileRepository fileRepository = new FileRepository(new File(SSHGit.localRepoPath));
         Git git = new Git(fileRepository);
 
         System.err.println("Listing local branches:");
