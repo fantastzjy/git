@@ -12,6 +12,7 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.*;
 import org.eclipse.jgit.util.FS;
 
@@ -32,19 +33,21 @@ public class SSHGit {
 
     //私钥文件地址
     public static String keyPath = "D:/MyConfiguration/jiaying2.zhang/.ssh/id_rsa";
-
-    //本项目的远程仓库
-    public static String remoteRepoPath = "ssh://git@github.com/fantastzjy/git.git";
-
-    //本项目的本地仓库
-    public static String localRepoPath = "D:/MyConfiguration/jiaying2.zhang/Desktop/git";
-
     //测试仓库远程路径
 //    public static String remoteRepositoryUrl = "https://github.com/fantastzjy/jgit";
     public static String remoteRepoPathTest = "ssh://git@github.com/fantastzjy/jgit.git"; //git地址
 
     //测试仓库本地路径
     public static String localRepoPathTest = "D:/MyConfiguration/jiaying2.zhang/Desktop/jgit";
+
+    //本项目的远程仓库
+    public static String remoteRepoPath = "ssh://git@github.com/fantastzjy/git.git";
+//    public static String remoteRepoPath = remoteRepoPathTest;
+
+    //本项目的本地仓库
+    public static String localRepoPath = "D:/MyConfiguration/jiaying2.zhang/Desktop/git";
+//    public static String localRepoPath = localRepoPathTest;
+
 
     //************************* Main ****************************
 
@@ -53,6 +56,13 @@ public class SSHGit {
         SshSessionFactory sshSessionFactory = getsshSessionFactory(keyPath);
         //克隆
 //        gitClone(remoteRepoPathTest, localRepoPathTest, sshSessionFactory);
+//
+//        FileRepository fileRepository = new FileRepository(new File(SSHGit.localRepoPath));
+//        Git git = new Git(fileRepository);
+//
+//        System.err.println("Listing local branches:");
+//        List<Ref> call = git.branchList().call();
+
 
         //commit
 //        status(localRepoPath);//打印提交前状态
@@ -60,12 +70,15 @@ public class SSHGit {
 //        status(localRepoPath);//打印提交后状态
 
         //push
-//        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
+        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
 //        System.out.println("push 结束");
 
         //pull
-        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
+//        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
 
+
+//        获取分支信息
+//        getBranchList();
 
         //切换分支
 //        checkout(localRepoPath);
@@ -100,7 +113,8 @@ public class SSHGit {
             @Override
             protected JSch createDefaultJSch(FS fs) throws JSchException {
                 JSch sch = super.createDefaultJSch(fs);
-                sch.addIdentity(keyPath); //添加私钥文件
+                //添加私钥文件
+                sch.addIdentity(keyPath);
                 return sch;
             }
         };
@@ -241,8 +255,8 @@ public class SSHGit {
         try {
             //关联到本地仓库
             //1  报错 org.eclipse.jgit.api.errors.WrongRepositoryStateException: Cannot pull into a repository with state: BARE
-            Git pullGit = new Git(new FileRepository(new File(localRepoPath)));
-
+//            Git pullGit = new Git(new FileRepository(new File(localRepoPath)));
+            Git pullGit = Git.open(new File(SSHGit.localRepoPath));
             //2  报错org.eclipse.jgit.transport.TransportHttp cannot be cast to org.eclipse.jgit.transport.SshTransport
 //            Git pullGit = Git.open(new File(localRepoPath));
 
@@ -274,7 +288,7 @@ public class SSHGit {
 
             //获取分支列表
             List<Ref> call = git.branchList()
-                    .setListMode(ListBranchCommand.ListMode.REMOTE)
+                    .setListMode(ListBranchCommand.ListMode.ALL)
                     .call();
 
             //在分支列表中获取主分支
@@ -292,7 +306,7 @@ public class SSHGit {
                     //.setStartPoint("origin/master")
                     //.setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
                     //将主分支切换到分支 test1
-                    .setName("test1")
+                    .setName("qqq")
                     .call();
 
             for (Ref ref : git.branchList()
@@ -442,11 +456,18 @@ public class SSHGit {
      * @throws IOException
      * @throws GitAPIException
      */
-    @Test
-    public void getBranchList() throws IOException, GitAPIException {
 
-        FileRepository fileRepository = new FileRepository(new File(SSHGit.localRepoPath));
-        Git git = new Git(fileRepository);
+    public static void getBranchList() throws IOException, GitAPIException {
+
+        Repository Repository = new FileRepositoryBuilder().readEnvironment() // scan environment GIT_* variables
+                .findGitDir() // scan up the file system tree
+                .build();;
+
+//        FileRepository fileRepository = new FileRepository(new File(SSHGit.localRepoPath));
+        FileRepository fileRepository = new FileRepository(SSHGit.localRepoPath+"/.git");
+
+//        Git git = new Git(fileRepository);
+        Git git = Git.open(new File(SSHGit.localRepoPath));
 
         System.err.println("Listing local branches:");
         List<Ref> call = git.branchList().call();
@@ -454,9 +475,13 @@ public class SSHGit {
             System.err.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
         }
 
+        Repository aa = git.getRepository();
+
+        ListBranchCommand aaa = git.branchList();
+
         System.err.println("Now including remote branches:");
-        call = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
-        for (Ref ref : call) {
+        List<Ref> call1 = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
+        for (Ref ref : call1) {
             System.err.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
         }
 
