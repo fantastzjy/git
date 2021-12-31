@@ -350,7 +350,11 @@ public class SSH密钥 {
      * 查看状态
      */
     public static void status(String localRepoPath) throws IOException {
-        Git git = Git.open(new File(localRepoPath));
+        //关联到本地仓库
+        FileRepository fileRepository = new FileRepository(new File(localRepoPath));
+        Git git = new Git(fileRepository);
+
+//        Git git = Git.open(new File(localRepoPath));
 
         try {
             Status status = git.status().call();
