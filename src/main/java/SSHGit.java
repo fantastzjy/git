@@ -216,7 +216,8 @@ public class SSHGit {
      */
     public static void push(String remoteRepoPath, String localRepoPath, String branch, SshSessionFactory sshSessionFactory) throws IOException, GitAPIException {
         //关联到本地仓库
-        Git pushGit = new Git(new FileRepository(new File(localRepoPath)));
+//        Git pushGit = new Git(new FileRepository(new File(localRepoPath)));
+        Git pushGit =  Git.open(new File(SSHGit.localRepoPath));
 
 //        Git pushGit = Git.open(new File(localRepoPath));
 
