@@ -64,11 +64,11 @@ public class SSHGit {
 //        System.out.println("push 结束");
 
         //pull
-//        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
+        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
 
 
         //切换分支
-        checkout(localRepoPath);
+//        checkout(localRepoPath);
 
         //获取提交信息      仓库内(path下,有可能为仓库下子文件夹)的所有提交版本号
 //        List<String> gitVersions = getGitVersions(localRepoPath);
@@ -189,24 +189,6 @@ public class SSHGit {
 
     //**************************** push ***********************************
 
-    /**
-     * http push
-     * 自动获取分支名称
-     *
-     * @param git
-     * @param branch
-     * @param provider
-     * @throws GitAPIException
-     * @throws IOException
-     */
-    public static void push(Git git, String branch, CredentialsProvider provider) throws GitAPIException, IOException {
-        if (branch == null) {
-            branch = git.getRepository().getBranch();
-        }
-        git.push()
-                .setCredentialsProvider(provider)
-                .setRemote("origin").setRefSpecs(new RefSpec(branch)).call();
-    }
 
     /**
      * ssh push
@@ -220,8 +202,7 @@ public class SSHGit {
      */
     public static void push(String remoteRepoPath, String localRepoPath, String branch, SshSessionFactory sshSessionFactory) throws IOException, GitAPIException {
         //关联到本地仓库
-        FileRepository fileRepository = new FileRepository(new File(localRepoPath));
-        Git pushGit = new Git(fileRepository);
+        Git pushGit = new Git(new FileRepository(new File(localRepoPath)));
 
 //        Git pushGit = Git.open(new File(localRepoPath));
 
@@ -261,8 +242,7 @@ public class SSHGit {
         try {
             //关联到本地仓库
             //1  报错 org.eclipse.jgit.api.errors.WrongRepositoryStateException: Cannot pull into a repository with state: BARE
-            FileRepository fileRepository = new FileRepository(new File(localRepoPath));
-            Git pullGit = new Git(fileRepository);
+            Git pullGit = new Git(new FileRepository(new File(localRepoPath)));
 
             //2  报错org.eclipse.jgit.transport.TransportHttp cannot be cast to org.eclipse.jgit.transport.SshTransport
 //            Git pullGit = Git.open(new File(localRepoPath));
@@ -291,7 +271,7 @@ public class SSHGit {
 
     public static void checkout(String localRepoPath) throws IOException, GitAPIException {
         //若能获取本地仓库则进入
-        try (Git git = new Git(new FileRepository(localRepoPath))) {
+        try (Git git = new Git(new FileRepository(new File(localRepoPath)))) {
 
             //获取分支列表
             List<Ref> call = git.branchList()
@@ -334,8 +314,7 @@ public class SSHGit {
     public static void status(String localRepoPath) throws IOException {
         //关联到本地仓库    下面两种获取git 结果不一致怎么回事？
         //法一 异常
-//        FileRepository fileRepository = new FileRepository(new File(localRepoPath));
-//        Git git = new Git(fileRepository);
+//        Git git = new Git(new FileRepository(new File(localRepoPath));
         //法二 正常
         Git git = Git.open(new File(localRepoPath));
 
