@@ -72,7 +72,7 @@ public class SSH密钥 {
         //读取仓库日志
 
         List<String> logs = getLogs(Git.open(new File(localRepoPath)).getRepository());
-        logs.forEach(res->System.out.println(res));
+        logs.forEach(res->System.err.println(res));
 
         System.out.println("测试结束");
     }
