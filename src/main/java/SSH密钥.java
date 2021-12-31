@@ -280,7 +280,7 @@ public class SSH密钥 {
                                 SshTransport sshTransport = (SshTransport) transport;
                                 sshTransport.setSshSessionFactory(sshSessionFactory);
                             });
-
+            
             pullCommand.call();
 
         } catch (Exception e) {
@@ -425,21 +425,21 @@ public class SSH密钥 {
      * @throws GitAPIException
      */
     @Test
-    public static void getBranchList() throws IOException, GitAPIException {
+    public  void getBranchList() throws IOException, GitAPIException {
 
         FileRepository fileRepository = new FileRepository(new File(SSH密钥.localRepoPath));
         Git git = new Git(fileRepository);
 
-        System.out.println("Listing local branches:");
+        System.err.println("Listing local branches:");
         List<Ref> call = git.branchList().call();
         for (Ref ref : call) {
-            System.out.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
+            System.err.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
         }
 
-        System.out.println("Now including remote branches:");
+        System.err.println("Now including remote branches:");
         call = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
         for (Ref ref : call) {
-            System.out.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
+            System.err.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
         }
 
 
