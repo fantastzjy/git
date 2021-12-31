@@ -62,6 +62,7 @@ public class SSH密钥 {
         //pull
 //        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
 
+
         //获取提交信息      仓库内(path下,有可能为仓库下子文件夹)的所有提交版本号
 //        List<String> gitVersions = getGitVersions(localRepoPath);
 
@@ -251,10 +252,10 @@ public class SSH密钥 {
                     .pull()
                     //用于拉取操作的远程（uri 或名称）。 如果没有设置远程，将使用分支的配置
                     // 如果分支配置缺少Constants.DEFAULT_REMOTE_NAME的默认值将被使用。
-//                    .setRemote("origin")
+                    .setRemote("origin")
                     //用于拉取操作的远程分支名称。 如果没有设置 remoteBranchName，将使用分支的配置。
                     // 如果分支配置丢失，则使用与当前分支同名的远程分支。
-//                    .setRemoteBranchName("master")
+                    .setRemoteBranchName("master")
                     .setTransportConfigCallback(
                             transport -> {
                                 SshTransport sshTransport = (SshTransport) transport;
