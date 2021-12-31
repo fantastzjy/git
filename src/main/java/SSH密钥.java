@@ -5,10 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jgit.api.CloneCommand;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.PullCommand;
-import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.NotSupportedException;
 import org.eclipse.jgit.errors.TransportException;
@@ -61,7 +58,7 @@ public class SSH密钥 {
 //        gitClone(remoteRepoPathTest, localRepoPathTest, sshSessionFactory);
 
         //commit
-        commit(localRepoPath, null, "测试提交 "+ new Random().nextInt(10));
+        commit(localRepoPath, null, "测试提交 " + new Random().nextInt(10));
 
 
         //push
@@ -234,7 +231,7 @@ public class SSH密钥 {
         pushGit.push()
 //                .setRemote(remoteRepoPath)
 //                .setRemote("origin/master")
-                .setRefSpecs(new RefSpec("origin/master"))
+//                .setRefSpecs(new RefSpec(branch))
                 .setPushAll()
 //                .setCredentialsProvider(provider)
                 .setTransportConfigCallback(
@@ -419,6 +416,33 @@ public class SSH密钥 {
         }
 
         return commits;
+    }
+
+    /**
+     * 获取分支列表
+     * @param localRepoPath
+     * @throws IOException
+     * @throws GitAPIException
+     */
+    @Test
+    public static void getBranchList(String localRepoPath) throws IOException, GitAPIException {
+
+        FileRepository fileRepository = new FileRepository(new File(SSH密钥.localRepoPath));
+        Git git = new Git(fileRepository);
+
+        System.out.println("Listing local branches:");
+        List<Ref> call = git.branchList().call();
+        for (Ref ref : call) {
+            System.out.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
+        }
+
+        System.out.println("Now including remote branches:");
+        call = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
+        for (Ref ref : call) {
+            System.out.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
+        }
+
+
     }
 
 
