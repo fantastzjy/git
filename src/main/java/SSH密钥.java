@@ -369,7 +369,7 @@ public class SSH密钥 {
                         break;
                     }
                     commits.add(revCommit.getFullMessage());
-                    System.err.println("\n Commit-Message: " + revCommit.getFullMessage());
+                    System.out.println("\n Commit-Message: " + revCommit.getFullMessage());
                 }
                 revWalk.dispose();
             }
