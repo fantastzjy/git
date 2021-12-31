@@ -72,7 +72,7 @@ public class SSH密钥 {
         //读取仓库日志
 
         List<String> logs = getLogs(Git.open(new File(localRepoPath)).getRepository());
-        logs.forEach(res->System.err.println(res));
+
 
         System.out.println("测试结束");
     }
@@ -369,7 +369,7 @@ public class SSH密钥 {
                         break;
                     }
                     commits.add(revCommit.getFullMessage());
-                    System.out.println("\n Commit-Message: " + revCommit.getFullMessage());
+                    System.err.println("\n Commit-Message: " + revCommit.getFullMessage());
                 }
                 revWalk.dispose();
             }
