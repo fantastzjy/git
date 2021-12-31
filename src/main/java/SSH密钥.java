@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.CloneCommand;
@@ -60,14 +61,15 @@ public class SSH密钥 {
 //        gitClone(remoteRepoPathTest, localRepoPathTest, sshSessionFactory);
 
         //commit
-        commit(localRepoPath, null, "测试提交 1");
+        commit(localRepoPath, null, "测试提交 "+ new Random().nextInt(10));
 
 
         //push
-//        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
+        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
+        System.out.println("push 结束");
 
         //pull
-//        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
+        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
 
 
         //获取提交信息      仓库内(path下,有可能为仓库下子文件夹)的所有提交版本号
@@ -77,6 +79,7 @@ public class SSH密钥 {
 //        List<String> logs = getLogs(Git.open(new File(localRepoPath)).getRepository());
 
         //读取仓库状态
+
         status(localRepoPath);
 
         System.out.println("测试结束");
@@ -219,25 +222,26 @@ public class SSH密钥 {
      */
     public static void push(String remoteRepoPath, String localRepoPath, String branch, SshSessionFactory sshSessionFactory) throws IOException, GitAPIException {
         //关联到本地仓库
-//        FileRepository fileRepository = new FileRepository(new File(localRepoPath));
-//        Git pushGit = new Git(fileRepository);
-//        FileRepository fileRepository = new FileRepository(new File(localRepoPath));
+        FileRepository fileRepository = new FileRepository(new File(localRepoPath));
+        Git pushGit = new Git(fileRepository);
 
-        Git pushGit = Git.open(new File(localRepoPath));
+//        Git pushGit = Git.open(new File(localRepoPath));
 
         if (branch == null) {
             branch = pushGit.getRepository().getBranch();
         }
 
         pushGit.push()
+                .setRemote(remoteRepoPath)
 //                .setRemote("origin")
 //                .setRefSpecs(new RefSpec(branch))
+                .setPushAll()
 //                .setCredentialsProvider(provider)
-                .setTransportConfigCallback(
-                        transport -> {
-                            SshTransport sshTransport = (SshTransport) transport;
-                            sshTransport.setSshSessionFactory(sshSessionFactory);
-                        })
+//                .setTransportConfigCallback(
+//                        transport -> {
+//                            SshTransport sshTransport = (SshTransport) transport;
+//                            sshTransport.setSshSessionFactory(sshSessionFactory);
+//                        })
                 .call();
 
     }
@@ -258,8 +262,13 @@ public class SSH密钥 {
 
         try {
             //关联到本地仓库
+            //1  报错 org.eclipse.jgit.api.errors.WrongRepositoryStateException: Cannot pull into a repository with state: BARE
             FileRepository fileRepository = new FileRepository(new File(localRepoPath));
             Git pullGit = new Git(fileRepository);
+
+            //2  报错org.eclipse.jgit.transport.TransportHttp cannot be cast to org.eclipse.jgit.transport.SshTransport
+//            Git pullGit = Git.open(new File(localRepoPath));
+
             //设置密钥,拉取文件
             PullCommand pullCommand = pullGit
                     .pull()
@@ -350,18 +359,22 @@ public class SSH密钥 {
      * 查看状态
      */
     public static void status(String localRepoPath) throws IOException {
-        //关联到本地仓库
-        FileRepository fileRepository = new FileRepository(new File(localRepoPath));
-        Git git = new Git(fileRepository);
-
-//        Git git = Git.open(new File(localRepoPath));
+        //关联到本地仓库    下面两种获取git 结果不一致怎么回事？
+        //法一 异常
+//        FileRepository fileRepository = new FileRepository(new File(localRepoPath));
+//        Git git = new Git(fileRepository);
+        //法二 正常
+        Git git = Git.open(new File(localRepoPath));
 
         try {
             Status status = git.status().call();
+            System.out.println("读取仓库状态*****************");
+            log.info("开始打印日志*************");
             log.info("Git Change: " + status.getChanged());
             log.info("Git Modified: " + status.getModified());
             log.info("Git UncommittedChanges: " + status.getUncommittedChanges());
             log.info("Git Untracked: " + status.getUntracked());
+            log.info("打印日志结束*************");
         } catch (Exception e) {
             log.info(e.getMessage());
         } finally {
