@@ -55,10 +55,10 @@ public class SSH密钥 {
 
 
         //push
-//        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
+        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
 
         //pull
-        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
+//        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
 
         //获取提交信息      仓库内(path下,有可能为仓库下子文件夹)的所有提交版本号
 //        List<String> gitVersions = getGitVersions(localRepoPath);
@@ -215,7 +215,7 @@ public class SSH密钥 {
 
         pushGit.push()
 //                .setRemote("origin")
-                .setRefSpecs(new RefSpec(branch))
+//                .setRefSpecs(new RefSpec(branch))
 //                .setCredentialsProvider(provider)
                 .setTransportConfigCallback(
                         transport -> {
