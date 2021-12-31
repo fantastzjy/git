@@ -41,7 +41,6 @@ public class SSHGit {
 
     //测试仓库远程路径
 //    public static String remoteRepositoryUrl = "https://github.com/fantastzjy/jgit";
-//    String remoteRepoPath = "ssh://github.com/fantastzjy/jgit.git";   //错误地址 未加协议
     public static String remoteRepoPathTest = "ssh://git@github.com/fantastzjy/jgit.git"; //git地址
 
     //测试仓库本地路径
@@ -56,12 +55,12 @@ public class SSHGit {
 //        gitClone(remoteRepoPathTest, localRepoPathTest, sshSessionFactory);
 
         //commit
-        status(localRepoPath);//打印提交前状态
+//        status(localRepoPath);//打印提交前状态
         commit(localRepoPath, null, "测试提交 " + new Random().nextInt(10));
-        status(localRepoPath);//打印提交后状态
+//        status(localRepoPath);//打印提交后状态
 
         //push
-//        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
+        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
 //        System.out.println("push 结束");
 
         //pull
