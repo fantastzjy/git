@@ -1,8 +1,5 @@
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
-import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
@@ -14,6 +11,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.junit.Test;
 
 
 import java.io.File;
@@ -68,7 +66,7 @@ public class GitTest {
 //        push(git, provider);
 
         //************* pull  git为本地仓库的Git
-        Git pull = pull(git, provider);
+//        Git pull = pull(git, provider);
 
         System.out.println("结束..........");
     }
@@ -205,7 +203,7 @@ public class GitTest {
 
         String result;
         try {
-            log.info("开始重置");
+//            log.info("开始重置");
             //重置
 //            git.reset()
 //                    .setMode(ResetCommand.ResetType.HARD)
@@ -228,11 +226,15 @@ public class GitTest {
         return git;
     }
 
+
+
+
     /**
      * 查看状态
      */
+    @Test
     public static void status() {
-        File RepoGitDir = new File("/blog/.git");
+        File RepoGitDir = new File(localRepositoryPath);
         Repository repo = null;
         try {
             repo = new FileRepository(RepoGitDir.getAbsolutePath());
