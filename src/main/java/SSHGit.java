@@ -227,9 +227,9 @@ public class SSHGit {
 
         pushGit.push()
 //                .setRemote(remoteRepoPath)
-//                .setRemote("origin")
-//                .setRefSpecs(new RefSpec(branch))
-                .setPushAll()
+                .setRemote("origin")
+                .setRefSpecs(new RefSpec(branch))
+//                .setPushAll()
 //                .setCredentialsProvider(provider)
                 .setTransportConfigCallback(
                         transport -> {
