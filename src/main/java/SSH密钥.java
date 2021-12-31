@@ -10,7 +10,10 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.NotSupportedException;
 import org.eclipse.jgit.errors.TransportException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.*;
 import org.eclipse.jgit.util.FS;
 
@@ -60,11 +63,16 @@ public class SSH密钥 {
 //        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
 
         //pull
-        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
+//        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
 
 
         //获取提交信息      仓库内(path下,有可能为仓库下子文件夹)的所有提交版本号
 //        List<String> gitVersions = getGitVersions(localRepoPath);
+
+        //读取仓库日志
+
+        List<String> logs = getLogs(Git.open(new File(localRepoPath)).getRepository());
+        logs.forEach(res->System.out.println(res));
 
         System.out.println("测试结束");
     }
@@ -303,7 +311,7 @@ public class SSH密钥 {
     /**
      * 2、获取两个版本间提交详细记录
      * version 为 上一个方法查询出来的版本号
-     * @param path
+     * @param
      */
 //    public static void showDiff(String path,String oldVersion,String newVersion) {
 //        try {
@@ -330,6 +338,46 @@ public class SSH密钥 {
 //            e.printStackTrace();
 //        }
 //    }
+
+
+
+
+     //*************************************** 读取仓库日志 ****************************
+    //    读取仓库日志
+    //    可以通过RevWalk读取仓库日志。
+    //    revWalk.parseCommit 可读取一条commit
+    //    遍历revWalk，可读取所有日志
+    public static List<String> getLogs(Repository repository) throws IOException {
+        return getLogsSinceCommit(repository, null, null);
+    }
+
+    public static List<String> getLogsSinceCommit(Repository repository, String commit) throws IOException {
+        return getLogsSinceCommit(repository, null, commit);
+    }
+
+    public static List<String> getLogsSinceCommit(Repository repository, String branch, String commit) throws IOException {
+        if (branch == null) {
+            branch = repository.getBranch();
+        }
+        Ref head = repository.findRef("refs/heads/" + branch);
+        List<String> commits = new ArrayList<>();
+        if (head != null) {
+            try (RevWalk revWalk = new RevWalk(repository)) {
+                revWalk.markStart(revWalk.parseCommit(head.getObjectId()));
+                for (RevCommit revCommit : revWalk) {
+                    if (revCommit.getId().getName().equals(commit)) {
+                        break;
+                    }
+                    commits.add(revCommit.getFullMessage());
+                    System.out.println("\n Commit-Message: " + revCommit.getFullMessage());
+                }
+                revWalk.dispose();
+            }
+        }
+
+        return commits;
+    }
+
 
 
 }

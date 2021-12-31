@@ -253,40 +253,4 @@ public class GitTest {
         }
     }
 
-
-    //    读取仓库日志
-    //    可以通过RevWalk读取仓库日志。
-    //    revWalk.parseCommit 可读取一条commit
-    //    遍历revWalk，可读取所有日志
-    public static List<String> getLogs(Repository repository) throws IOException {
-        return getLogsSinceCommit(repository, null, null);
-    }
-
-    public static List<String> getLogsSinceCommit(Repository repository, String commit) throws IOException {
-        return getLogsSinceCommit(repository, null, commit);
-    }
-
-    public static List<String> getLogsSinceCommit(Repository repository, String branch, String commit) throws IOException {
-        if (branch == null) {
-            branch = repository.getBranch();
-        }
-        Ref head = repository.findRef("refs/heads/" + branch);
-        List<String> commits = new ArrayList<>();
-        if (head != null) {
-            try (RevWalk revWalk = new RevWalk(repository)) {
-                revWalk.markStart(revWalk.parseCommit(head.getObjectId()));
-                for (RevCommit revCommit : revWalk) {
-                    if (revCommit.getId().getName().equals(commit)) {
-                        break;
-                    }
-                    commits.add(revCommit.getFullMessage());
-                    System.out.println("\n Commit-Message: " + revCommit.getFullMessage());
-                }
-                revWalk.dispose();
-            }
-        }
-
-        return commits;
-    }
-
 }
