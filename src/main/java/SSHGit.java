@@ -56,15 +56,16 @@ public class SSHGit {
 //        gitClone(remoteRepoPathTest, localRepoPathTest, sshSessionFactory);
 
         //commit
+        status(localRepoPath);//打印提交前状态
         commit(localRepoPath, null, "测试提交 " + new Random().nextInt(10));
-
+        status(localRepoPath);//打印提交后状态
 
         //push
 //        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
 //        System.out.println("push 结束");
 
         //pull
-        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
+//        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
 
 
         //切换分支
@@ -77,8 +78,7 @@ public class SSHGit {
 //        List<String> logs = getLogs(Git.open(new File(localRepoPath)).getRepository());
 
         //读取仓库状态
-
-        status(localRepoPath);
+//        status(localRepoPath);
 
         System.out.println("测试结束");
     }
@@ -242,7 +242,7 @@ public class SSHGit {
         try {
             //关联到本地仓库
             //1  报错 org.eclipse.jgit.api.errors.WrongRepositoryStateException: Cannot pull into a repository with state: BARE
-            Git pullGit = new Git(new FileRepository(localRepoPath));
+            Git pullGit = new Git(new FileRepository(new File(localRepoPath)));
 
             //2  报错org.eclipse.jgit.transport.TransportHttp cannot be cast to org.eclipse.jgit.transport.SshTransport
 //            Git pullGit = Git.open(new File(localRepoPath));
