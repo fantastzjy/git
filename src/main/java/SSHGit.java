@@ -64,7 +64,7 @@ public class SSHGit {
 //        System.out.println("push 结束");
 
         //pull
-        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
+//        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
 
 
         //切换分支
