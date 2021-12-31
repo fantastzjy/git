@@ -237,11 +237,11 @@ public class SSH密钥 {
 //                .setRefSpecs(new RefSpec(branch))
                 .setPushAll()
 //                .setCredentialsProvider(provider)
-//                .setTransportConfigCallback(
-//                        transport -> {
-//                            SshTransport sshTransport = (SshTransport) transport;
-//                            sshTransport.setSshSessionFactory(sshSessionFactory);
-//                        })
+                .setTransportConfigCallback(
+                        transport -> {
+                            SshTransport sshTransport = (SshTransport) transport;
+                            sshTransport.setSshSessionFactory(sshSessionFactory);
+                        })
                 .call();
 
     }
