@@ -280,7 +280,7 @@ public class SSH密钥 {
                                 SshTransport sshTransport = (SshTransport) transport;
                                 sshTransport.setSshSessionFactory(sshSessionFactory);
                             });
-            
+
             pullCommand.call();
 
         } catch (Exception e) {

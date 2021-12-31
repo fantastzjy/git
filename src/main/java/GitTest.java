@@ -223,6 +223,7 @@ public class GitTest {
                 git.close();
             }
         }
+
         return git;
     }
 
