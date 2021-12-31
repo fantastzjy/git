@@ -234,7 +234,7 @@ public class SSH密钥 {
         pushGit.push()
 //                .setRemote(remoteRepoPath)
 //                .setRemote("origin")
-                .setRefSpecs(new RefSpec(branch))
+//                .setRefSpecs(new RefSpec(branch))
                 .setPushAll()
 //                .setCredentialsProvider(provider)
                 .setTransportConfigCallback(
