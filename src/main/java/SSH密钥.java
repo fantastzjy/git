@@ -62,11 +62,11 @@ public class SSH密钥 {
 
 
         //push
-        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
-        System.out.println("push 结束");
+//        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
+//        System.out.println("push 结束");
 
         //pull
-        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
+//        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
 
 
         //获取提交信息      仓库内(path下,有可能为仓库下子文件夹)的所有提交版本号
@@ -420,12 +420,12 @@ public class SSH密钥 {
 
     /**
      * 获取分支列表
-     * @param localRepoPath
+     * @param
      * @throws IOException
      * @throws GitAPIException
      */
     @Test
-    public static void getBranchList(String localRepoPath) throws IOException, GitAPIException {
+    public static void getBranchList() throws IOException, GitAPIException {
 
         FileRepository fileRepository = new FileRepository(new File(SSH密钥.localRepoPath));
         Git git = new Git(fileRepository);
