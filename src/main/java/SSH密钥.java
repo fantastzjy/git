@@ -60,7 +60,7 @@ public class SSH密钥 {
 //        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
 
         //pull
-//        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
+        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
 
 
         //获取提交信息      仓库内(path下,有可能为仓库下子文件夹)的所有提交版本号
