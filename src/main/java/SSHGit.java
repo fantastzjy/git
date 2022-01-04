@@ -465,7 +465,7 @@ public class SSHGit {
                 .build();
         ;
 
-//        FileRepository fileRepository = new FileRepository(new File(SSHGit.localRepoPath));
+//        FileRepository fileRepository = new FileRepository(new File(SSHGit.localRepoPath));   //不能获取到仓库的所有信息
         FileRepository fileRepository = new FileRepository(SSHGit.localRepoPath + "/.git");
 
 //        Git git = new Git(fileRepository);
@@ -476,10 +476,6 @@ public class SSHGit {
         for (Ref ref : call) {
             System.err.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
         }
-
-        Repository aa = git.getRepository();
-
-        ListBranchCommand aaa = git.branchList();
 
         System.err.println("Now including remote branches:");
         List<Ref> call1 = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
