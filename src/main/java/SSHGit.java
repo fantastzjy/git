@@ -78,7 +78,7 @@ public class SSHGit {
 
 
 //        获取分支信息
-        getBranchList();
+//        getBranchList();
 
         //切换分支
 //        checkout(localRepoPath);
@@ -90,7 +90,7 @@ public class SSHGit {
 //        List<String> logs = getLogs(Git.open(new File(localRepoPath)).getRepository());
 
         //读取仓库状态
-//        status(localRepoPath);
+        status(localRepoPath);
 
         System.out.println("测试结束");
     }
