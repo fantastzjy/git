@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.ProgressMonitor;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -33,20 +34,19 @@ public class SSHGit {
 
     //私钥文件地址
     public static String keyPath = "D:/MyConfiguration/jiaying2.zhang/.ssh/id_rsa";
+
     //测试仓库远程路径
 //    public static String remoteRepositoryUrl = "https://github.com/fantastzjy/jgit";
     public static String remoteRepoPathTest = "ssh://git@github.com/fantastzjy/jgit.git"; //git地址
-
-    //测试仓库本地路径
     public static String localRepoPathTest = "D:/MyConfiguration/jiaying2.zhang/Desktop/jgit";
 
-    //本项目的远程仓库
-    public static String remoteRepoPath = "ssh://git@github.com/fantastzjy/git.git";
-//    public static String remoteRepoPath = remoteRepoPathTest;
+    //地址设为本项目
+//    public static String remoteRepoPath = "ssh://git@github.com/fantastzjy/git.git";
+//    public static String localRepoPath = "D:/MyConfiguration/jiaying2.zhang/Desktop/git";
 
-    //本项目的本地仓库
-    public static String localRepoPath = "D:/MyConfiguration/jiaying2.zhang/Desktop/git";
-//    public static String localRepoPath = localRepoPathTest;
+    //地址设为测试项目
+    public static String remoteRepoPath = remoteRepoPathTest;
+    public static String localRepoPath = localRepoPathTest;
 
 
     //************************* Main ****************************
@@ -66,12 +66,15 @@ public class SSHGit {
 
         //commit
 //        status(localRepoPath);//打印提交前状态
+
         commit(localRepoPath, null, "测试提交 " + new Random().nextInt(10));
+
 //        status(localRepoPath);//打印提交后状态
 
-        //push
-//        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
-//        System.out.println("push 结束");
+
+        //push  可以实现
+        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
+//        push(remoteRepoPath, localRepoPath, "master", sshSessionFactory);
 
         //pull
 //        pull(remoteRepoPath, localRepoPath, sshSessionFactory);
@@ -81,7 +84,7 @@ public class SSHGit {
 //        getBranchList();
 
         //切换分支
-//        checkout(localRepoPath);
+        checkout(localRepoPath, sshSessionFactory);
 
         //获取提交信息      仓库内(path下,有可能为仓库下子文件夹)的所有提交版本号
 //        List<String> gitVersions = getGitVersions(localRepoPath);
@@ -90,7 +93,7 @@ public class SSHGit {
 //        List<String> logs = getLogs(Git.open(new File(localRepoPath)).getRepository());
 
         //读取仓库状态
-        status(localRepoPath);
+//        status(localRepoPath);
 
         System.out.println("测试结束");
     }
@@ -193,6 +196,7 @@ public class SSHGit {
         }
 
         pushGit.add().addFilepattern(".").call();
+
         //提交
         pushGit.commit()
                 .setMessage(message)
@@ -230,7 +234,7 @@ public class SSHGit {
                 .setRemote("origin")
                 .setRefSpecs(new RefSpec(branch))
 //                .setPushAll()
-//                .setCredentialsProvider(provider)
+//                .setCredentialsProvider(provider)  //http提供权限方式
                 .setTransportConfigCallback(
                         transport -> {
                             SshTransport sshTransport = (SshTransport) transport;
@@ -257,68 +261,146 @@ public class SSHGit {
             //关联到本地仓库
             //1  报错 org.eclipse.jgit.api.errors.WrongRepositoryStateException: Cannot pull into a repository with state: BARE
 //            Git pullGit = new Git(new FileRepository(new File(localRepoPath)));
-            Git pullGit = Git.open(new File(SSHGit.localRepoPath));
+            Git pullGit = Git.open(new File(SSHGit.localRepoPath));  //push 用的这个
+//            Git pullGit = new Git(new FileRepository(localRepoPath));
             //2  报错org.eclipse.jgit.transport.TransportHttp cannot be cast to org.eclipse.jgit.transport.SshTransport
 //            Git pullGit = Git.open(new File(localRepoPath));
 
             //设置密钥,拉取文件
-            PullCommand pullCommand = pullGit
+            pullGit
                     .pull()
                     //用于拉取操作的远程（uri 或名称）。 如果没有设置远程，将使用分支的配置
                     // 如果分支配置缺少Constants.DEFAULT_REMOTE_NAME的默认值将被使用。
                     .setRemote("origin")
                     //用于拉取操作的远程分支名称。 如果没有设置 remoteBranchName，将使用分支的配置。
                     // 如果分支配置丢失，则使用与当前分支同名的远程分支。
-                    .setRemoteBranchName("master")
+                    .setRemoteBranchName("qqq")
                     .setTransportConfigCallback(
                             transport -> {
                                 SshTransport sshTransport = (SshTransport) transport;
                                 sshTransport.setSshSessionFactory(sshSessionFactory);
-                            });
-
-            pullCommand.call();
+                            })
+                    .call();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void checkout(String localRepoPath) throws IOException, GitAPIException {
-        //若能获取本地仓库则进入
-        try (Git git = new Git(new FileRepository(new File(localRepoPath)))) {
+    public static void checkout(String localRepoPath, SshSessionFactory sshSessionFactory) throws IOException, GitAPIException {
 
-            //获取分支列表
-            List<Ref> call = git.branchList()
-                    .setListMode(ListBranchCommand.ListMode.ALL)
-                    .call();
+//        Git git = new Git(new FileRepository(new File(localRepoPath)));
 
-            //在分支列表中获取主分支
-            Ref remoteMaster = null;
-            for (Ref ref : call) {
-                if (ref.getName().contains("master")) {
-                    remoteMaster = ref;
-                    System.out.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
-                }
-            }
+        Git git = Git.open(new File(localRepoPath)); //push 用的这个
 
-            git.checkout()
-                    .setCreateBranch(false)
-                    //.setStartPoint(buildRevCommit(git.getRepository(), remoteMaster.getObjectId()))
-                    //.setStartPoint("origin/master")
-                    //.setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                    //将主分支切换到分支 test1
-                    .setName("qqq")
-                    .call();
+//        String branch = pushGit.getRepository().getBranch();
 
-            for (Ref ref : git.branchList()
-                    .setListMode(ListBranchCommand.ListMode.ALL)
-                    .call()) {
+        //*************** 需要先获取远程分支信息
+        FetchResult fetchResult = git.fetch()
+//                .setRemote(REMOTE_URL)
+                .setRefSpecs("+refs/pull/6/head:master")
+                .setRefSpecs(new RefSpec("+refs/heads/*:refs/heads/*"))
+
+                //这里不需要权限验证即可
+//                .setTransportConfigCallback(
+//                        transport -> {
+//                            SshTransport sshTransport = (SshTransport) transport;
+//                            sshTransport.setSshSessionFactory(sshSessionFactory);
+//                        })
+
+                .call();
+
+//        System.err.println("Result when fetching the PR: " + fetchResult.getMessages());
+        System.err.println("获取 PR 时的结果: " + fetchResult.getMessages());
+
+        //分支切换
+        Ref checkoutRef = git.checkout()
+//                .setName("master")
+                .setName("qqq")
+                .call();
+
+//        System.out.println("Checked out PR, now printing log, it should include two commits from the PR on top");
+        System.err.println("签出 PR，现在打印日志，它应该包括来自 PR 的两次提交");
+
+
+        Iterable<RevCommit> logs = git.log()
+                .call();
+        int i=1;
+        for (RevCommit rev : logs) {
+            //push的记录 无论是否有修改内容
+            System.out.println("提交日志： Commit: " +i++ +" " + rev  + ", name: " + rev.getName() + ", id: " + rev.getId().getName() );
+        }
+
+
+        /*
+
+
+        //获取分支列表
+        List<Ref> call = git.branchList()
+                .setListMode(ListBranchCommand.ListMode.ALL)
+                .call();
+
+        //在分支列表中获取主分支
+        Ref remoteMaster = null;
+        for (Ref ref : call) {
+            if (ref.getName().contains("master")) {
+                remoteMaster = ref;
                 System.out.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
             }
-
         }
+
+        System.out.println("切换分支");
+        git.checkout()
+                .setCreateBranch(false)
+                //.setStartPoint(buildRevCommit(git.getRepository(), remoteMaster.getObjectId()))
+                //.setStartPoint("origin/master")
+                //.setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                //将主分支切换到分支 qqq \ master
+//                    .setName("master")
+                .setName("master")
+//                .setProgressMonitor(new SimpleProgressMonitor())
+                .call();
+
+
+        for (Ref ref : git.branchList()
+                .setListMode(ListBranchCommand.ListMode.ALL)
+                .call()) {
+            System.out.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
+        }
+*/
+
+
     }
 
+    /**
+     * 分支切换创建的静态内部类
+     */
+    private static class SimpleProgressMonitor implements ProgressMonitor {
+        @Override
+        public void start(int totalTasks) {
+            System.out.println("Starting work on " + totalTasks + " tasks");
+        }
+
+        @Override
+        public void beginTask(String title, int totalWork) {
+            System.out.println("Start " + title + ": " + totalWork);
+        }
+
+        @Override
+        public void update(int completed) {
+            System.out.print(completed + "-");
+        }
+
+        @Override
+        public void endTask() {
+            System.out.println("Done");
+        }
+
+        @Override
+        public boolean isCancelled() {
+            return false;
+        }
+    }
 
     //************************************** 查看状态 *******************************
 
@@ -364,7 +446,8 @@ public class SSHGit {
         return getLogsSinceCommit(repository, null, commit);
     }
 
-    public static List<String> getLogsSinceCommit(Repository repository, String branch, String commit) throws IOException {
+    public static List<String> getLogsSinceCommit(Repository repository, String branch, String commit) throws
+            IOException {
         if (branch == null) {
             branch = repository.getBranch();
         }
