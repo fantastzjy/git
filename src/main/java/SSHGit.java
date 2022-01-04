@@ -70,7 +70,7 @@ public class SSHGit {
 //        status(localRepoPath);//打印提交后状态
 
         //push
-        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
+//        push(remoteRepoPath, localRepoPath, null, sshSessionFactory);
 //        System.out.println("push 结束");
 
         //pull
@@ -78,7 +78,7 @@ public class SSHGit {
 
 
 //        获取分支信息
-//        getBranchList();
+        getBranchList();
 
         //切换分支
 //        checkout(localRepoPath);
