@@ -474,13 +474,13 @@ public class SSHGit {
         System.err.println("Listing local branches:");
         List<Ref> call = git.branchList().call();
         for (Ref ref : call) {
-            System.err.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
+            System.out.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
         }
 
         System.err.println("Now including remote branches:");
         List<Ref> call1 = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
         for (Ref ref : call1) {
-            System.err.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
+            System.out.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
         }
 
 
